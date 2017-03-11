@@ -1,0 +1,5 @@
+/ticktickd
+/.vscode
+/build/*
+*.tar.gz
+/vendor/*/
