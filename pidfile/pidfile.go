@@ -49,6 +49,16 @@ func NewPidfile(directory string, name string) (*Pidfile, error) {
 	}, nil
 }
 
+func NewPidfileAndWrite(directory string, name string) (*Pidfile, error) {
+	pf, err := NewPidfile(directory, name)
+	if err != nil {
+		return nil, err
+	} else if err = pf.Write(); err != nil {
+		return pf, err
+	}
+	return pf, nil
+}
+
 // Path returns the full pidfile path
 func (p *Pidfile) Path() string {
 	return path.Join(p.directory, p.name)
@@ -108,6 +118,10 @@ func (p *Pidfile) Write() error {
 	}
 
 	return file.Close()
+}
+
+func (p *Pidfile) Remove() error {
+	return os.Remove(p.Path())
 }
 
 func (p *Pidfile) isRunning(pid int) bool {

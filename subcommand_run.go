@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/AstromechZA/ticktickd/pidfile"
 
@@ -25,15 +26,18 @@ func checkDirectory(directory string) error {
 
 func subcommandRun(directory string) error {
 
+	// check that the directory exists
 	if err := checkDirectory(directory); err != nil {
 		return fmt.Errorf("Cannot start: %s", err.Error())
 	}
-
-	if pf, err := pidfile.NewPidfile(directory, "ticktickd.pid"); err != nil {
-		return err
-	} else if err = pf.Write(); err != nil {
-		return err
+	// check and write the pidfile
+	pf, err := pidfile.NewPidfileAndWrite(directory, "ticktickd.pid")
+	if err != nil {
+		return fmt.Errorf("pidfile error: %s", err)
 	}
+	defer pf.Remove()
+
+	time.Sleep(time.Minute)
 
 	return nil
 }
