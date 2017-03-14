@@ -9,6 +9,12 @@
 			"revisionTime": "2015-10-19T16:08:06Z"
 		},
 		{
+			"checksumSHA1": "J0gVUnPJlrKrgZcxzM+b3CFIGAk=",
+			"path": "github.com/fsnotify/fsnotify",
+			"revision": "7d7316ed6e1ed2de075aab8dfc76de5d158d66e1",
+			"revisionTime": "2016-08-16T05:19:40Z"
+		},
+		{
 			"checksumSHA1": "9VnGHaNfB7VQcYf2INovZvXu7NU=",
 			"path": "github.com/mitchellh/go-homedir",
 			"revision": "b8bc1bf767474819792c23f32d8286a45736f1c6",

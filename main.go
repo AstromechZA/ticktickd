@@ -75,6 +75,7 @@ func main() {
 				directory = d
 			}
 			if err := subcommandRun(directory); err != nil {
+				log.Criticalf("Error occured: %s", err)
 				cli.Log(err.Error())
 				return 1
 			}
