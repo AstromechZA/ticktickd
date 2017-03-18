@@ -18,7 +18,6 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 
 	timer := time.NewTimer(time.Hour * 24)
 	timerChan := timer.C
-
 	go func() {
 		for {
 			<-timerChan
@@ -29,19 +28,19 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 
 	signalsChan := make(chan os.Signal, 1)
 	signal.Notify(signalsChan, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGINT)
-
 	go func() {
 		for s := range signalsChan {
 			log.Debugf("Signalled via signal [%s]", s.String())
 			// if it was a sigterm, then we clean up
 			if s == syscall.SIGTERM || s == syscall.SIGINT {
 				overall <- false
+			} else if s == syscall.SIGUSR1 {
+				overall <- true
 			}
 		}
 	}()
 
 	inEventChan := make(chan fsnotify.Event)
-
 	if watchTasksDir {
 		log.Infof("Beginning inotify watcher, this might fail on an unsupported OS")
 		log.Warningf("This may cause increased cpu usage on some operating systems, disable it if needed using the cli")
@@ -57,7 +56,6 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 				return err
 			}
 		}
-
 		go func() {
 			for e := range inEventChan {
 				if e.Op.String() != "" {

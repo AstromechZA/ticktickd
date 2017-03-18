@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/AstromechZA/ticktickd/pidfile"
+	"github.com/tucnak/climax"
 
 	"golang.org/x/sys/unix"
 )
@@ -40,7 +41,13 @@ func checkTickTickDirectory(directory string) error {
 	return nil
 }
 
-func subcommandRun(directory string, watchTasksDir bool) error {
+func subcommandRun(ctx climax.Context) error {
+	// parse args and things
+	directory := DefaultDirectory
+	if d, ok := ctx.Get("directory"); ok {
+		directory = d
+	}
+	mustWatch := !ctx.Is("disablewatch")
 
 	// check that the directory exists
 	if err := checkTickTickDirectory(directory); err != nil {
@@ -56,5 +63,5 @@ func subcommandRun(directory string, watchTasksDir bool) error {
 	log.Debugf("Wrote %s", pf.Path())
 	defer pf.Remove()
 
-	return foreverLoop(directory, watchTasksDir)
+	return foreverLoop(directory, mustWatch)
 }

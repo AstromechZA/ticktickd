@@ -71,36 +71,20 @@ func main() {
 			{
 				Name:     "disablewatch",
 				Usage:    "--disablewatch",
-				Help:     "disable the inotify watch on the tasks directory",
+				Help:     "disable the inotify watch on the tasks directory, may improve performance",
 				Variable: false,
 			},
 		},
 		Handle: func(ctx climax.Context) int {
-			directory := DefaultDirectory
-			if d, ok := ctx.Get("directory"); ok {
-				directory = d
-			}
-
-			if err := subcommandRun(directory, !ctx.Is("disablewatch")); err != nil {
+			if err := subcommandRun(ctx); err != nil {
 				log.Criticalf("Error occured: %s", err)
 				cli.Log(err.Error())
 				return 1
 			}
-
 			return 0
 		},
 	}
 	cli.AddCommand(runCmd)
-
-	// Specify and add the signal command
-	sigCmd := climax.Command{
-		Name:  "signal",
-		Brief: "signal the running ticktickd process to reload its tasks",
-		Handle: func(ctx climax.Context) int {
-			return 0
-		},
-	}
-	cli.AddCommand(sigCmd)
 
 	code := cli.Run()
 	os.Exit(code)

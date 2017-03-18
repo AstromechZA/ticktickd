@@ -45,7 +45,9 @@ func doWork(directory string) (sleeptime time.Duration) {
 	}
 
 	// spawn the matching tasks!
-	// TODO
+	for _, td := range tasksToSpawn {
+		log.Infof("%v", td)
+	}
 
 	if len(tasksToWaitFor) > 0 {
 		sort.Slice(tasksToWaitFor, func(i, j int) bool { return tasksToWaitFor[i].nextRunTime.Before(tasksToWaitFor[j].nextRunTime) })
