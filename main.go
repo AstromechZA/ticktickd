@@ -68,17 +68,25 @@ func main() {
 				Help:     "set the working directory to load tasks, and write logs and pid files",
 				Variable: true,
 			},
+			{
+				Name:     "disablewatch",
+				Usage:    "--disablewatch",
+				Help:     "disable the inotify watch on the tasks directory",
+				Variable: false,
+			},
 		},
 		Handle: func(ctx climax.Context) int {
 			directory := DefaultDirectory
 			if d, ok := ctx.Get("directory"); ok {
 				directory = d
 			}
-			if err := subcommandRun(directory); err != nil {
+
+			if err := subcommandRun(directory, !ctx.Is("disablewatch")); err != nil {
 				log.Criticalf("Error occured: %s", err)
 				cli.Log(err.Error())
 				return 1
 			}
+
 			return 0
 		},
 	}

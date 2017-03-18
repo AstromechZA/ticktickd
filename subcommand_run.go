@@ -40,7 +40,7 @@ func checkTickTickDirectory(directory string) error {
 	return nil
 }
 
-func subcommandRun(directory string) error {
+func subcommandRun(directory string, watchTasksDir bool) error {
 
 	// check that the directory exists
 	if err := checkTickTickDirectory(directory); err != nil {
@@ -56,5 +56,5 @@ func subcommandRun(directory string) error {
 	log.Debugf("Wrote %s", pf.Path())
 	defer pf.Remove()
 
-	return foreverLoop(directory)
+	return foreverLoop(directory, watchTasksDir)
 }

@@ -10,77 +10,69 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-func innerLoop(directory string, signalsChan chan os.Signal, inEventChan chan fsnotify.Event, inErrChan chan error) bool {
-	// do the task spawning and scanning functionality
-	log.Info("Running work function")
-	sleepDuration := doWork(directory)
-
-	// setup a timer and wait until the next scan time
-	log.Debugf("Setting up timer for %s", sleepDuration)
-	timer := time.NewTimer(sleepDuration)
-	timerChan := timer.C
-
-	// loop until we receive a signal
-	mustContinue := true
-	stillWaiting := true
-	for stillWaiting {
-		select {
-		case <-timerChan:
-			log.Info("Signalled via timer")
-			stillWaiting = false
-
-		case s := <-signalsChan:
-			log.Debugf("Signalled via signal [%s]", s.String())
-			stillWaiting = false
-
-			// if it was a sigterm, then we clean up
-			if s == syscall.SIGTERM || s == syscall.SIGINT {
-				mustContinue = false
-			}
-
-		case e := <-inEventChan:
-			log.Debugf("Inotify event: %s", e)
-			stillWaiting = false
-
-		case e := <-inErrChan:
-			log.Warningf("Inotify error: %s", e)
-
-		default:
-			log.Info("Looping")
-		}
-	}
-
-	// make sure the timer has stopped/been consumed no matter what signal
-	timer.Stop()
-	return mustContinue
-}
-
-func foreverLoop(directory string) error {
-	signalsChan := make(chan os.Signal, 1)
-	signal.Notify(signalsChan, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGINT)
+func foreverLoop(directory string, watchTasksDir bool) error {
 
 	tasksDirectory := path.Join(directory, "tasks.d")
 
-	inEventChan := make(chan fsnotify.Event)
-	inErrChan := make(chan error)
+	overall := make(chan bool)
 
-	log.Infof("Beginning inotify watcher, this might fail on an unsupported OS")
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Errorf("Could not create inotify watcher: %s", err)
-	} else {
-		defer watcher.Close()
-		inEventChan = watcher.Events
-		inErrChan = watcher.Errors
+	timer := time.NewTimer(time.Hour * 24)
+	timerChan := timer.C
 
-		log.Infof("Beginning to watch task directory %s", tasksDirectory)
-		if err := watcher.Add(tasksDirectory); err != nil {
-			return err
+	go func() {
+		for {
+			<-timerChan
+			log.Info("Signalled via timer")
+			overall <- true
 		}
+	}()
+
+	signalsChan := make(chan os.Signal, 1)
+	signal.Notify(signalsChan, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGINT)
+
+	go func() {
+		for s := range signalsChan {
+			log.Debugf("Signalled via signal [%s]", s.String())
+			// if it was a sigterm, then we clean up
+			if s == syscall.SIGTERM || s == syscall.SIGINT {
+				overall <- false
+			}
+		}
+	}()
+
+	inEventChan := make(chan fsnotify.Event)
+
+	if watchTasksDir {
+		log.Infof("Beginning inotify watcher, this might fail on an unsupported OS")
+		log.Warningf("This may cause increased cpu usage on some operating systems, disable it if needed using the cli")
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			log.Errorf("Could not create inotify watcher: %s", err)
+		} else {
+			defer watcher.Close()
+			inEventChan = watcher.Events
+
+			log.Infof("Beginning to watch task directory %s", tasksDirectory)
+			if err := watcher.Add(tasksDirectory); err != nil {
+				return err
+			}
+		}
+
+		go func() {
+			for e := range inEventChan {
+				if e.Op.String() != "" {
+					log.Debugf("Inotify event: %s", e)
+					overall <- true
+				}
+			}
+		}()
 	}
 
 	for {
-		if !innerLoop(directory, signalsChan, inEventChan, inErrChan) {
+		sleepDuration := doWork(directory)
+		timer.Reset(sleepDuration)
+		mustContinue := <-overall
+		if !mustContinue {
 			break
 		}
 	}
