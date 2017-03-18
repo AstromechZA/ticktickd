@@ -3,6 +3,12 @@
 	"ignore": "",
 	"package": [
 		{
+			"checksumSHA1": "Qg6beCCnu+IIs8x2tBfB1oNBnQA=",
+			"path": "github.com/AstromechZA/ticktickrules",
+			"revision": "a3b7550dc018eff659089ff261c7e70a5605597d",
+			"revisionTime": "2017-03-11T11:34:55Z"
+		},
+		{
 			"checksumSHA1": "sfztXdAroE5HoabLUVAvnR5uV8o=",
 			"path": "github.com/facebookgo/atomicfile",
 			"revision": "2de1f203e7d5e386a6833233882782932729f27e",

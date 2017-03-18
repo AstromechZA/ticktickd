@@ -13,11 +13,11 @@ import (
 func innerLoop(directory string, signalsChan chan os.Signal, inEventChan chan fsnotify.Event, inErrChan chan error) bool {
 	// do the task spawning and scanning functionality
 	log.Info("Running work function")
-	sleepseconds := doWork()
+	sleepDuration := doWork(directory)
 
 	// setup a timer and wait until the next scan time
-	log.Debugf("Setting up timer for %s", formatElapsedTime(sleepseconds))
-	timer := time.NewTimer(time.Duration(sleepseconds) * time.Second)
+	log.Debugf("Setting up timer for %s", sleepDuration)
+	timer := time.NewTimer(sleepDuration)
 	timerChan := timer.C
 
 	// loop until we receive a signal
@@ -40,10 +40,13 @@ func innerLoop(directory string, signalsChan chan os.Signal, inEventChan chan fs
 
 		case e := <-inEventChan:
 			log.Debugf("Inotify event: %s", e)
+			stillWaiting = false
 
 		case e := <-inErrChan:
-			log.Debugf("Inotify error: %s", e)
+			log.Warningf("Inotify error: %s", e)
 
+		default:
+			log.Info("Looping")
 		}
 	}
 
