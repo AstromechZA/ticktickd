@@ -97,7 +97,7 @@ func doWork(directory string) (sleeptime time.Duration) {
 		log.Infof("Spawning %s..", td.Name)
 		err := cmd.Start()
 		if err != nil {
-			log.Errorf("Failed to spawn process %s %s: %s", exe, args, err)
+			log.Errorf("Failed to spawn task %s process %s %s: %s", td.Name, exe, args, err)
 		}
 	}
 
