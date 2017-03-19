@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os/exec"
 	"path"
 	"sort"
 	"time"
@@ -66,7 +67,14 @@ func doWork(directory string) (sleeptime time.Duration) {
 	// spawn the matching tasks!
 	for _, td := range tasksToSpawn {
 		StoreLastRunTime(db, &td, workTime)
-		log.Infof("%v", td)
+		exe := td.Command[0]
+		args := td.Command[1:]
+		cmd := exec.Command(exe, args...)
+		log.Infof("Spawning %s..", td.Name)
+		err := cmd.Start()
+		if err != nil {
+			log.Errorf("Failed to spawn process %s %s: %s", exe, args, err)
+		}
 	}
 
 	if len(tasksToWaitFor) > 0 {
