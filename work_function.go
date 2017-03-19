@@ -4,7 +4,10 @@ import (
 	"os/exec"
 	"path"
 	"sort"
+	"syscall"
 	"time"
+
+	"github.com/AstromechZA/etcpwdparse"
 )
 
 type taskNextTime struct {
@@ -64,12 +67,33 @@ func doWork(directory string) (sleeptime time.Duration) {
 		}
 	}
 
+	cache, err := etcpwdparse.NewLoadedEtcPasswdCache()
+	if err != nil {
+		log.Errorf("Failed to load etc password file, disabling any other-user tasks: %s", err)
+		cache = nil
+	}
+
 	// spawn the matching tasks!
 	for _, td := range tasksToSpawn {
 		StoreLastRunTime(db, &td, workTime)
 		exe := td.Command[0]
 		args := td.Command[1:]
 		cmd := exec.Command(exe, args...)
+
+		if td.RunAsUser != "" {
+			if cache == nil {
+				log.Errorf("Skipping task '%s' since we cant run as another user", td.Name)
+				continue
+			}
+			entry, ok := cache.LookupUserByName(td.RunAsUser)
+			if !ok {
+				log.Errorf("Skipping task '%s' since no user %s exists", td.Name, td.RunAsUser)
+				continue
+			}
+			cmd.SysProcAttr = &syscall.SysProcAttr{}
+			cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(entry.Uid()), Gid: uint32(entry.Gid())}
+		}
+
 		log.Infof("Spawning %s..", td.Name)
 		err := cmd.Start()
 		if err != nil {

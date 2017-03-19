@@ -7,6 +7,12 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "ftPBwL8H4YrAamIFEYRv6f8nW4c=",
+			"path": "github.com/AstromechZA/etcpwdparse",
+			"revision": "ae3085819958a7c3872c0ebf413100767c708805",
+			"revisionTime": "2017-03-14T21:27:25Z"
+		},
+		{
 			"checksumSHA1": "Qg6beCCnu+IIs8x2tBfB1oNBnQA=",
 			"path": "github.com/AstromechZA/ticktickrules",
 			"revision": "a3b7550dc018eff659089ff261c7e70a5605597d",
