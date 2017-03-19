@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 
 	"github.com/AstromechZA/ticktickd/pidfile"
 	"github.com/tucnak/climax"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"golang.org/x/sys/unix"
 )
@@ -24,7 +26,7 @@ func checkDirectory(directory string) error {
 }
 
 func checkTickTickDirectory(directory string) error {
-	log.Infof("Checking ticktickd directory %s", directory)
+	log.Printf("Checking ticktickd directory %s", directory)
 	if err := checkDirectory(directory); err != nil {
 		return err
 	} else if unix.Access(directory, unix.W_OK) != nil {
@@ -32,7 +34,7 @@ func checkTickTickDirectory(directory string) error {
 	}
 
 	tasksDir := path.Join(directory, "tasks.d")
-	log.Infof("Checking tasks.d directory %s", tasksDir)
+	log.Printf("Checking tasks.d directory %s", tasksDir)
 	if err := checkDirectory(tasksDir); err != nil {
 		return err
 	} else if unix.Access(tasksDir, unix.X_OK|unix.R_OK) != nil {
@@ -55,13 +57,23 @@ func subcommandRun(ctx climax.Context) error {
 	}
 
 	// check and write the pidfile
-	log.Infof("Checking pidfile")
+	log.Printf("Checking pidfile")
 	pf, err := pidfile.NewPidfileAndWrite(directory, "ticktickd.pid")
 	if err != nil {
 		return fmt.Errorf("pidfile error: %s", err)
 	}
-	log.Debugf("Wrote %s", pf.Path())
+	log.Printf("Wrote %s", pf.Path())
 	defer pf.Remove()
+
+	// check and setup rotating logs
+	logDir := path.Join(directory, "ticktickd.log")
+	log.Printf("Beginning logging to %s", logDir)
+	log.SetOutput(&lumberjack.Logger{
+		Filename:   logDir,
+		MaxSize:    128, // megabytes
+		MaxBackups: 5,
+		MaxAge:     90, //days
+	})
 
 	return foreverLoop(directory, mustWatch)
 }

@@ -5,7 +5,8 @@ import (
 	"os"
 	"strings"
 
-	logging "github.com/op/go-logging"
+	"log"
+
 	"github.com/tucnak/climax"
 )
 
@@ -33,8 +34,6 @@ var GitSummary = "<changes unknown>"
 
 // BuildDate string filled in by govvv
 var BuildDate = "<no date>"
-
-var log = logging.MustGetLogger("ticktickd")
 
 // DefaultDirectory is the default directory
 const DefaultDirectory = "/etc/ticktickd"
@@ -77,7 +76,7 @@ func main() {
 		},
 		Handle: func(ctx climax.Context) int {
 			if err := subcommandRun(ctx); err != nil {
-				log.Criticalf("Error occured: %s", err)
+				log.Printf("Error occured: %s", err)
 				cli.Log(err.Error())
 				return 1
 			}

@@ -3,10 +3,6 @@
 	"ignore": "",
 	"package": [
 		{
-			"path": "get",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "OSkhcXRMmFrm/eaEuJt0/eD4I88=",
 			"path": "github.com/AstromechZA/etcpwdparse",
 			"revision": "f0e5f077971669480995722ed8ac9eb3026af283",
@@ -17,6 +13,12 @@
 			"path": "github.com/AstromechZA/ticktickrules",
 			"revision": "a3b7550dc018eff659089ff261c7e70a5605597d",
 			"revisionTime": "2017-03-11T11:34:55Z"
+		},
+		{
+			"checksumSHA1": "SntYl5K1RXZSn9AyvwKKjkfMOb4=",
+			"path": "github.com/BurntSushi/toml",
+			"revision": "d94612f9fc140360834f9742158c70b5c5b5535b",
+			"revisionTime": "2017-03-18T20:29:13Z"
 		},
 		{
 			"checksumSHA1": "cKUQOr283xQurAEsHE3iTWmeQPc=",
@@ -37,18 +39,6 @@
 			"revisionTime": "2016-08-16T05:19:40Z"
 		},
 		{
-			"checksumSHA1": "9VnGHaNfB7VQcYf2INovZvXu7NU=",
-			"path": "github.com/mitchellh/go-homedir",
-			"revision": "b8bc1bf767474819792c23f32d8286a45736f1c6",
-			"revisionTime": "2016-12-03T19:45:07Z"
-		},
-		{
-			"checksumSHA1": "GHrmYDDBZUztywc4osB+81VVJLk=",
-			"path": "github.com/op/go-logging",
-			"revision": "970db520ece77730c7e4724c61121037378659d9",
-			"revisionTime": "2016-03-15T20:05:05Z"
-		},
-		{
 			"checksumSHA1": "27K+8o3Lztm4XLrqsOTYKHBL0R0=",
 			"path": "github.com/tucnak/climax",
 			"revision": "4c021a579ddac03b8a085bebcb87d66c072341ef",
@@ -63,6 +53,30 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "99f16d856c9836c42d24e7ab64ea72916925fa97",
 			"revisionTime": "2017-03-08T15:04:45Z"
+		},
+		{
+			"checksumSHA1": "538I8ghUdvZa25NxgMUDpq14Qic=",
+			"path": "gopkg.in/check.v1",
+			"revision": "20d25e2804050c1cd24a7eea1e7a6447dd0e74ec",
+			"revisionTime": "2016-12-08T18:13:25Z"
+		},
+		{
+			"checksumSHA1": "yawc7Ht28nifklkJN95wdGVUsL8=",
+			"path": "gopkg.in/natefinch/lumberjack.v2",
+			"revision": "dd45e6a67c53f673bb49ca8a001fd3a63ceb640e",
+			"revisionTime": "2016-11-04T13:48:45Z"
+		},
+		{
+			"checksumSHA1": "EN0uJ9QjGGt0K1ZdiXnTvzkRWAc=",
+			"path": "gopkg.in/yaml.v1",
+			"revision": "9f9df34309c04878acc86042b16630b0f696e1de",
+			"revisionTime": "2014-09-24T16:16:07Z"
+		},
+		{
+			"checksumSHA1": "/0kOHaD3bhhN1GjmZajSigSqu4E=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
+			"revisionTime": "2017-02-08T14:18:51Z"
 		}
 	],
 	"rootPath": "github.com/AstromechZA/ticktickd"

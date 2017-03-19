@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"path"
@@ -21,7 +22,7 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 	go func() {
 		for {
 			<-timerChan
-			log.Info("Signalled via timer")
+			log.Printf("Signalled via timer")
 			overall <- true
 		}
 	}()
@@ -30,7 +31,7 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 	signal.Notify(signalsChan, syscall.SIGUSR1, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		for s := range signalsChan {
-			log.Debugf("Signalled via signal [%s]", s.String())
+			log.Printf("Signalled via signal [%s]", s.String())
 			// if it was a sigterm, then we clean up
 			if s == syscall.SIGTERM || s == syscall.SIGINT {
 				overall <- false
@@ -42,16 +43,16 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 
 	inEventChan := make(chan fsnotify.Event)
 	if watchTasksDir {
-		log.Infof("Beginning inotify watcher, this might fail on an unsupported OS")
-		log.Warningf("This may cause increased cpu usage on some operating systems, disable it if needed using the cli")
+		log.Printf("Beginning inotify watcher, this might fail on an unsupported OS")
+		log.Printf("This may cause increased cpu usage on some operating systems, disable it if needed using the cli")
 		watcher, err := fsnotify.NewWatcher()
 		if err != nil {
-			log.Errorf("Could not create inotify watcher: %s", err)
+			log.Printf("Could not create inotify watcher: %s", err)
 		} else {
 			defer watcher.Close()
 			inEventChan = watcher.Events
 
-			log.Infof("Beginning to watch task directory %s", tasksDirectory)
+			log.Printf("Beginning to watch task directory %s", tasksDirectory)
 			if err := watcher.Add(tasksDirectory); err != nil {
 				return err
 			}
@@ -59,7 +60,7 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 		go func() {
 			for e := range inEventChan {
 				if e.Op.String() != "" {
-					log.Debugf("Inotify event: %s", e)
+					log.Printf("Inotify event: %s", e)
 					overall <- true
 				}
 			}
@@ -75,6 +76,6 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 		}
 	}
 
-	log.Info("Ending main loop.")
+	log.Printf("Ending main loop.")
 	return nil
 }

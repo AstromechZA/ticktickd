@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"path"
 	"sort"
@@ -24,23 +25,23 @@ func doWork(directory string) (sleeptime time.Duration) {
 
 	db, err := InitTimeDB(directory)
 	if err != nil {
-		log.Errorf("critical error when opening database: %s", err)
+		log.Printf("critical error when opening database: %s", err)
 		return
 	}
 	defer db.Close()
 	EnsureBucket(db)
 
 	tasksDir := path.Join(directory, "tasks.d")
-	log.Infof("Loading tasks from %s..", tasksDir)
+	log.Printf("Loading tasks from %s..", tasksDir)
 	tasks, loadfailures, err := LoadTaskDefinitions(tasksDir)
 	if err != nil {
-		log.Errorf("Critical failure when loading tasks: %s", err)
+		log.Printf("Critical failure when loading tasks: %s", err)
 		return
 	}
 	for name, ferr := range loadfailures {
-		log.Errorf("Error while loading task from file %s: %s", name, ferr)
+		log.Printf("Error while loading task from file %s: %s", name, ferr)
 	}
-	log.Infof("Loaded %d tasks successfully.", len(tasks))
+	log.Printf("Loaded %d tasks successfully.", len(tasks))
 
 	var tasksToSpawn []TaskDefinition
 
@@ -69,7 +70,7 @@ func doWork(directory string) (sleeptime time.Duration) {
 
 	cache, err := etcpwdparse.NewLoadedEtcPasswdCache()
 	if err != nil {
-		log.Errorf("Failed to load etc password file, disabling any other-user tasks: %s", err)
+		log.Printf("Failed to load etc password file, disabling any other-user tasks: %s", err)
 		cache = nil
 	}
 
@@ -82,22 +83,22 @@ func doWork(directory string) (sleeptime time.Duration) {
 
 		if td.RunAsUser != "" {
 			if cache == nil {
-				log.Errorf("Skipping task '%s' since we cant run as another user", td.Name)
+				log.Printf("Skipping task '%s' since we cant run as another user", td.Name)
 				continue
 			}
 			entry, ok := cache.LookupUserByName(td.RunAsUser)
 			if !ok {
-				log.Errorf("Skipping task '%s' since no user %s exists", td.Name, td.RunAsUser)
+				log.Printf("Skipping task '%s' since no user %s exists", td.Name, td.RunAsUser)
 				continue
 			}
 			cmd.SysProcAttr = &syscall.SysProcAttr{}
 			cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(entry.Uid()), Gid: uint32(entry.Gid())}
 		}
 
-		log.Infof("Spawning %s..", td.Name)
+		log.Printf("Spawning %s..", td.Name)
 		err := cmd.Start()
 		if err != nil {
-			log.Errorf("Failed to spawn task %s process %s %s: %s", td.Name, exe, args, err)
+			log.Printf("Failed to spawn task %s process %s %s: %s", td.Name, exe, args, err)
 		}
 	}
 
@@ -105,10 +106,10 @@ func doWork(directory string) (sleeptime time.Duration) {
 		sort.Slice(tasksToWaitFor, func(i, j int) bool { return tasksToWaitFor[i].nextRunTime.Before(tasksToWaitFor[j].nextRunTime) })
 		nextTask := tasksToWaitFor[0]
 		waitTime := nextTask.nextRunTime.Sub(workTime)
-		log.Infof("Next task '%s' should run at %s (in %s)", nextTask.taskDefinition.Name, nextTask.nextRunTime, waitTime)
+		log.Printf("Next task '%s' should run at %s (in %s)", nextTask.taskDefinition.Name, nextTask.nextRunTime, waitTime)
 		sleeptime = sleepTimeFromWaitTime(waitTime)
 	}
-	log.Infof("Will sleep for %s", sleeptime)
+	log.Printf("Will sleep for %s", sleeptime)
 	return
 }
 
