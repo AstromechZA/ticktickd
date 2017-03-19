@@ -18,6 +18,14 @@ func doWork(directory string) (sleeptime time.Duration) {
 	// default sleep seconds to 5 minutes in case of unexpected errors
 	sleeptime = time.Duration(5) * time.Minute
 
+	db, err := InitTimeDB(directory)
+	if err != nil {
+		log.Errorf("critical error when opening database: %s", err)
+		return
+	}
+	defer db.Close()
+	EnsureBucket(db)
+
 	tasksDir := path.Join(directory, "tasks.d")
 	log.Infof("Loading tasks from %s..", tasksDir)
 	tasks, loadfailures, err := LoadTaskDefinitions(tasksDir)
@@ -36,16 +44,28 @@ func doWork(directory string) (sleeptime time.Duration) {
 	var tasksToWaitFor []taskNextTime
 	for _, td := range tasks {
 		r, _ := td.GetRule()
-		var nextTime time.Time
-		if r.Matches(workTime) {
-			tasksToSpawn = append(tasksToSpawn, td)
+		lastRunTime := GetLastRunTime(db, &td)
+		if lastRunTime.IsZero() {
+			// has never run before
+			if r.Matches(workTime) {
+				tasksToSpawn = append(tasksToSpawn, td)
+			}
+			nextTime := r.NextAfter(workTime)
+			tasksToWaitFor = append(tasksToWaitFor, taskNextTime{td, nextTime})
+		} else {
+			// has run before
+			nextAfterLast := r.NextAfter(lastRunTime)
+			if nextAfterLast.Before(workTime) && r.Matches(workTime) {
+				tasksToSpawn = append(tasksToSpawn, td)
+			}
+			nextTime := r.NextAfter(workTime)
+			tasksToWaitFor = append(tasksToWaitFor, taskNextTime{td, nextTime})
 		}
-		nextTime = r.NextAfter(workTime)
-		tasksToWaitFor = append(tasksToWaitFor, taskNextTime{td, nextTime})
 	}
 
 	// spawn the matching tasks!
 	for _, td := range tasksToSpawn {
+		StoreLastRunTime(db, &td, workTime)
 		log.Infof("%v", td)
 	}
 

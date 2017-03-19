@@ -3,10 +3,20 @@
 	"ignore": "",
 	"package": [
 		{
+			"path": "get",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "Qg6beCCnu+IIs8x2tBfB1oNBnQA=",
 			"path": "github.com/AstromechZA/ticktickrules",
 			"revision": "a3b7550dc018eff659089ff261c7e70a5605597d",
 			"revisionTime": "2017-03-11T11:34:55Z"
+		},
+		{
+			"checksumSHA1": "cKUQOr283xQurAEsHE3iTWmeQPc=",
+			"path": "github.com/boltdb/bolt",
+			"revision": "e9cf4fae01b5a8ff89d0ec6b32f0d9c9f79aefdd",
+			"revisionTime": "2017-01-31T19:20:18Z"
 		},
 		{
 			"checksumSHA1": "sfztXdAroE5HoabLUVAvnR5uV8o=",
@@ -37,6 +47,10 @@
 			"path": "github.com/tucnak/climax",
 			"revision": "4c021a579ddac03b8a085bebcb87d66c072341ef",
 			"revisionTime": "2016-01-10T10:13:00Z"
+		},
+		{
+			"path": "go",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "uJ12+5J5K0egflT72RWxUfcBXD0=",
