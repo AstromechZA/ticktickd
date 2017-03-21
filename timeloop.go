@@ -12,9 +12,7 @@ import (
 )
 
 func foreverLoop(directory string, watchTasksDir bool) error {
-
 	tasksDirectory := path.Join(directory, "tasks.d")
-
 	overall := make(chan bool)
 
 	timer := time.NewTimer(time.Hour * 24)
@@ -70,8 +68,7 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 	for {
 		sleepDuration := doWork(directory)
 		timer.Reset(sleepDuration)
-		mustContinue := <-overall
-		if !mustContinue {
+		if c := <-overall; !c {
 			break
 		}
 	}

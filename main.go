@@ -73,6 +73,12 @@ func main() {
 				Help:     "disable the inotify watch on the tasks directory, may improve performance",
 				Variable: false,
 			},
+			{
+				Name:     "nologfile",
+				Usage:    "--nologfile",
+				Help:     "don't log to the logfile, log everything to stdout",
+				Variable: false,
+			},
 		},
 		Handle: func(ctx climax.Context) int {
 			if err := subcommandRun(ctx); err != nil {

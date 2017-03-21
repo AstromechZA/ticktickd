@@ -32,7 +32,6 @@ func doWork(directory string) (sleeptime time.Duration) {
 	EnsureBucket(db)
 
 	tasksDir := path.Join(directory, "tasks.d")
-	log.Printf("Loading tasks from %s..", tasksDir)
 	tasks, loadfailures, err := LoadTaskDefinitions(tasksDir)
 	if err != nil {
 		log.Printf("Critical failure when loading tasks: %s", err)
@@ -41,7 +40,7 @@ func doWork(directory string) (sleeptime time.Duration) {
 	for name, ferr := range loadfailures {
 		log.Printf("Error while loading task from file %s: %s", name, ferr)
 	}
-	log.Printf("Loaded %d tasks successfully.", len(tasks))
+	log.Printf("Loaded %d tasks from %s.", len(tasks), tasksDir)
 
 	var tasksToSpawn []TaskDefinition
 
@@ -109,7 +108,6 @@ func doWork(directory string) (sleeptime time.Duration) {
 		log.Printf("Next task '%s' should run at %s (in %s)", nextTask.taskDefinition.Name, nextTask.nextRunTime, waitTime)
 		sleeptime = sleepTimeFromWaitTime(waitTime)
 	}
-	log.Printf("Will sleep for %s", sleeptime)
 	return
 }
 

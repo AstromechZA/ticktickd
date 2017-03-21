@@ -14,6 +14,7 @@ import (
 )
 
 func checkDirectory(directory string) error {
+	log.Printf("Checking directory %s", directory)
 	if st, err := os.Stat(directory); err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("Directory path '%s' does not exist", directory)
@@ -25,8 +26,24 @@ func checkDirectory(directory string) error {
 	return nil
 }
 
+func ensureDirectory(directory string) error {
+	log.Printf("Ensuring directory %s", directory)
+	if st, err := os.Stat(directory); err != nil {
+		if os.IsNotExist(err) {
+			log.Printf("Creating directory since it doesn't exist")
+			if err := os.Mkdir(directory, 0755); err != nil {
+				return fmt.Errorf("Failed to create directory '%s': %s", directory, err)
+			}
+			return nil
+		}
+		return fmt.Errorf("Failed to read directory '%s': %s", directory, err.Error())
+	} else if !st.IsDir() {
+		return fmt.Errorf("Directory path '%s' is not a directory", directory)
+	}
+	return nil
+}
+
 func checkTickTickDirectory(directory string) error {
-	log.Printf("Checking ticktickd directory %s", directory)
 	if err := checkDirectory(directory); err != nil {
 		return err
 	} else if unix.Access(directory, unix.W_OK) != nil {
@@ -34,8 +51,7 @@ func checkTickTickDirectory(directory string) error {
 	}
 
 	tasksDir := path.Join(directory, "tasks.d")
-	log.Printf("Checking tasks.d directory %s", tasksDir)
-	if err := checkDirectory(tasksDir); err != nil {
+	if err := ensureDirectory(tasksDir); err != nil {
 		return err
 	} else if unix.Access(tasksDir, unix.X_OK|unix.R_OK) != nil {
 		return fmt.Errorf("Directory path '%s' is not readable", tasksDir)
@@ -66,14 +82,15 @@ func subcommandRun(ctx climax.Context) error {
 	defer pf.Remove()
 
 	// check and setup rotating logs
-	logDir := path.Join(directory, "ticktickd.log")
-	log.Printf("Beginning logging to %s", logDir)
-	log.SetOutput(&lumberjack.Logger{
-		Filename:   logDir,
-		MaxSize:    128, // megabytes
-		MaxBackups: 5,
-		MaxAge:     90, //days
-	})
-
+	if !ctx.Is("nologfile") {
+		logDir := path.Join(directory, "ticktickd.log")
+		log.Printf("Switching to logfile %s", logDir)
+		log.SetOutput(&lumberjack.Logger{
+			Filename:   logDir,
+			MaxSize:    128, // megabytes
+			MaxBackups: 5,
+			MaxAge:     90, //days
+		})
+	}
 	return foreverLoop(directory, mustWatch)
 }
