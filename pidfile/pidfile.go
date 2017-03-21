@@ -2,18 +2,14 @@ package pidfile
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/facebookgo/atomicfile"
-
-	"strings"
-
-	"io/ioutil"
-
-	"strconv"
-
 	"golang.org/x/sys/unix"
 )
 

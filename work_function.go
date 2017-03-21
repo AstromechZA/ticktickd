@@ -21,7 +21,7 @@ func doWork(directory string) (sleeptime time.Duration) {
 	workTime := time.Now()
 
 	// default sleep seconds to 5 minutes in case of unexpected errors
-	sleeptime = time.Duration(5) * time.Minute
+	sleeptime = 5 * time.Minute
 
 	db, err := InitTimeDB(directory)
 	if err != nil {
@@ -109,7 +109,7 @@ func doWork(directory string) (sleeptime time.Duration) {
 		sleeptime = sleepTimeFromWaitTime(waitTime)
 	} else {
 		// otherwise we just sleep for 30 minutes
-		sleeptime = time.Duration(30) * time.Minute
+		sleeptime = 30 * time.Minute
 	}
 	return
 }

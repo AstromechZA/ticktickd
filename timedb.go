@@ -1,11 +1,10 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"path"
 	"time"
-
-	"crypto/md5"
 
 	"github.com/boltdb/bolt"
 )

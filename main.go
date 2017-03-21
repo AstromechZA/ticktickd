@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
-
-	"log"
 
 	"github.com/tucnak/climax"
 )
 
 const descriptionString = `
-TODO
+'ticktickd' is a simple binary for running tasks on various intervals. It can be run separately by any
+user in a working directory which is used to store task definitions, a last run time
+database, and a rotating log file.
 `
 
 const logoImage = `
@@ -90,6 +91,30 @@ func main() {
 		},
 	}
 	cli.AddCommand(runCmd)
+
+	// Specify signal command
+	signalCmd := climax.Command{
+		Name:  "signal",
+		Brief: "signal the ticktickd process to reload its tasks",
+		Flags: []climax.Flag{
+			{
+				Name:     "directory",
+				Short:    "d",
+				Usage:    "--directory=/some/dir",
+				Help:     "set the working directory to load tasks, and write logs and pid files",
+				Variable: true,
+			},
+		},
+		Handle: func(ctx climax.Context) int {
+			if err := subcommandSignal(ctx); err != nil {
+				log.Printf("Error occured: %s", err)
+				cli.Log(err.Error())
+				return 1
+			}
+			return 0
+		},
+	}
+	cli.AddCommand(signalCmd)
 
 	code := cli.Run()
 	os.Exit(code)

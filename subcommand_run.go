@@ -8,9 +8,8 @@ import (
 
 	"github.com/AstromechZA/ticktickd/pidfile"
 	"github.com/tucnak/climax"
-	"gopkg.in/natefinch/lumberjack.v2"
-
 	"golang.org/x/sys/unix"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func checkDirectory(directory string) error {
