@@ -13,7 +13,6 @@ import (
 )
 
 func checkDirectory(directory string) error {
-	log.Printf("Checking directory %s", directory)
 	if st, err := os.Stat(directory); err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("Directory path '%s' does not exist", directory)
@@ -26,7 +25,6 @@ func checkDirectory(directory string) error {
 }
 
 func ensureDirectory(directory string) error {
-	log.Printf("Ensuring directory %s", directory)
 	if st, err := os.Stat(directory); err != nil {
 		if os.IsNotExist(err) {
 			log.Printf("Creating directory since it doesn't exist")
@@ -43,6 +41,7 @@ func ensureDirectory(directory string) error {
 }
 
 func checkTickTickDirectory(directory string) error {
+	log.Printf("Checking directory %s", directory)
 	if err := checkDirectory(directory); err != nil {
 		return err
 	} else if unix.Access(directory, unix.W_OK) != nil {
@@ -50,6 +49,7 @@ func checkTickTickDirectory(directory string) error {
 	}
 
 	tasksDir := path.Join(directory, "tasks.d")
+	log.Printf("Ensuring directory %s", directory)
 	if err := ensureDirectory(tasksDir); err != nil {
 		return err
 	} else if unix.Access(tasksDir, unix.X_OK|unix.R_OK) != nil {

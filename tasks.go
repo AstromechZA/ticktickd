@@ -13,6 +13,9 @@ import (
 // TaskDefinition defines the structure of the task deserialised from files
 // on disk.
 type TaskDefinition struct {
+	// FileName is the file it was loaded from
+	FileName string `json:"-"`
+
 	// Name is a unique name of the task
 	Name string `json:"name"`
 
@@ -77,6 +80,7 @@ func LoadTaskDefinitions(tasksDirectory string) ([]TaskDefinition, map[string]er
 					failures[fi.Name()] = fmt.Errorf("failed validation: %s", ferr)
 					continue
 				}
+				td.FileName = fi.Name()
 				definitions = append(definitions, td)
 			}
 		}

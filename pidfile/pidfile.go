@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"github.com/facebookgo/atomicfile"
-	"golang.org/x/sys/unix"
 )
 
 type Pidfile struct {
@@ -30,8 +29,6 @@ func NewPidfile(directory string, name string) (*Pidfile, error) {
 		return nil, fmt.Errorf("Failed to read directory '%s': %s", directory, err.Error())
 	} else if !st.IsDir() {
 		return nil, fmt.Errorf("Directory path '%s' is not a directory", directory)
-	} else if unix.Access(directory, unix.W_OK) != nil {
-		return nil, fmt.Errorf("Directory path '%s' is not writeable", directory)
 	}
 
 	// basic checks for the pidfile name

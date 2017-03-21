@@ -10,6 +10,7 @@ import (
 )
 
 func subcommandSignal(ctx climax.Context) error {
+
 	// parse args and things
 	directory := DefaultDirectory
 	if d, ok := ctx.Get("directory"); ok {
@@ -34,12 +35,17 @@ func subcommandSignal(ctx climax.Context) error {
 	}
 
 	// find and signal the process
-	proc, err := os.FindProcess(pid)
+	proc, _ := os.FindProcess(pid)
+	err = proc.Signal(syscall.Signal(0))
 	if err != nil {
-		return fmt.Errorf("could not find process with pid %d", pid)
+		if err == syscall.ESRCH {
+			return fmt.Errorf("ticktickd is not running")
+		}
+		return fmt.Errorf("unable to send signal to pid %d", pid)
 	}
 	if err := proc.Signal(syscall.SIGUSR1); err != nil {
 		return fmt.Errorf("could not send SIGUSR1 to process %d", pid)
 	}
+	fmt.Printf("Signalled running ticktickd process %d\n", pid)
 	return nil
 }
