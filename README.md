@@ -4,6 +4,49 @@
 user in a working directory which is used to store task definitions, a last run time
 database, and a rotating log file.
 
+## Commands available
+
+```
+$ ./ticktickd
+'ticktickd' is a simple binary for running tasks on various intervals. It can be run separately by any
+user in a working directory which is used to store task definitions, a last run time
+database, and a rotating log file.
+
+Usage:
+
+	ticktickd command [arguments]
+
+The commands are:
+
+	version     print version information
+	run         run the ticktickd process (not daemonized)
+	signal      signal the ticktickd process to reload its tasks
+	info        print information about the task and run times
+
+Use "ticktickd help [command]" for more information about a command.
+```
+
+The `info` command can be particularly useful as it gives you information like:
+
+```
+$ ./ticktickd info -d ~/.config/ticktickd
+Process:
+  ticktickd is not running (no pidfile)
+Tasks:
+  a.json:
+    name: 1-minutely
+    rule: * * * * *
+    last run: 2017-03-21 17:41:14.445201323 +0200 SAST
+    next run: 2017-03-21 19:30:00 +0200 SAST (in 48.399766008s)
+  b.json:
+    name: daily
+    rule: * 12 * * *
+    last run: never
+    next run: 2017-03-22 12:00:00 +0200 SAST (in 16h30m48.399766008s)
+```
+
+Definitely not something `cron` can usually do!
+
 ## Installation
 
 1. Download the binary appropriate for your system.
@@ -16,7 +59,8 @@ will work if you're root or running it as an appropriate user. If not, `~/.confi
 best.
 
 4. Add `ticktickd` as a reliable service via an init system like `systemd`, `supervisord`, `upstart` etc.
-This will keep it running and start it at boot.
+This will keep it running and start it at boot. The command should be `/usr/local/bin/ticktickd run` or
+something like `~/bin/ticktickd run --directory ~/.config/ticktickd`.
 
 ## Behavior under changing time
 
