@@ -67,6 +67,7 @@ func foreverLoop(directory string, watchTasksDir bool) error {
 
 	for {
 		sleepDuration := doWork(directory)
+		log.Printf("Sleeping until next wake up in %s", sleepDuration)
 		timer.Reset(sleepDuration)
 		if c := <-overall; !c {
 			break

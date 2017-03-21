@@ -107,6 +107,9 @@ func doWork(directory string) (sleeptime time.Duration) {
 		waitTime := nextTask.nextRunTime.Sub(workTime)
 		log.Printf("Next task '%s' should run at %s (in %s)", nextTask.taskDefinition.Name, nextTask.nextRunTime, waitTime)
 		sleeptime = sleepTimeFromWaitTime(waitTime)
+	} else {
+		// otherwise we just sleep for 30 minutes
+		sleeptime = time.Duration(30) * time.Minute
 	}
 	return
 }
